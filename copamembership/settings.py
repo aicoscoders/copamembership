@@ -81,8 +81,8 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME', 'copamembership'),
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', '123'),
-        'HOST': 'localhost',
-        'PORT': 5432,
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),
     }
 }
 
