@@ -1,1 +1,1 @@
-web: gunicorn copamembership.wsgi
+web: web: python manage.py migrate && gunicorn copamembership.wsgi
