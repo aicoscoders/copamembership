@@ -6,7 +6,7 @@ from .models import User
 class UserType(DjangoObjectType):
     class Meta:
         model = User
-        fields = ('name', 'email', 'phone')
+        fields = ('id', 'name', 'email', 'phone')
 
 
 class Query(graphene.ObjectType):
@@ -45,7 +45,7 @@ class UpdateUser(graphene.Mutation):
 
     @classmethod
     def mutate(cls, root, info, name, email, phone, id):
-        user1=User.objects.get(pk=id)
+        user1=User.objects.get(id=id)
         user1=User(
             name=name,
             email=email,
