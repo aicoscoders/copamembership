@@ -6,14 +6,18 @@ from .models import User
 class UserType(DjangoObjectType):
     class Meta:
         model = User
-        fields = ('name', 'email', 'phone')
+        fields = ('name', 'email', 'phone','id')
 
 
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
+    user=graphene.Field(UserType, id=graphene.ID())
 
     def resolve_users(root, info):
         return User.objects.all()
+    
+    def resolve_user(root, info, id):
+        return User.objects.get(id=id)
 
 
 class CreateUser(graphene.Mutation):
