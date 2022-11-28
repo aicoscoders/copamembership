@@ -11,12 +11,6 @@ class UserType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    users = graphene.List(UserType)
-
-        fields = ('id', 'name', 'email', 'phone')
-
-
-class Query(graphene.ObjectType):
     users = graphene.List(UserType) 
 
     user=graphene.Field(UserType, id=graphene.ID())
