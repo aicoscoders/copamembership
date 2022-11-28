@@ -3,6 +3,8 @@ from graphene_django import DjangoObjectType
 from graphene_django import DjangoListField
 from .models import Group
 from users.models import User
+from graphql import GraphQLError
+
 
 
 
@@ -13,9 +15,14 @@ class groupType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     groupe= DjangoListField(groupType)
+    group_users = graphene.Field(groupType, id=graphene.ID())
+
     
     def resolve_group(root,info):
         return Group.objects.all()
+
+    def resolve_group_users(root, info, id):
+        return Group.objects.get(id=id)
           
 
 class createGroup(graphene.Mutation):
@@ -36,24 +43,57 @@ class createGroup(graphene.Mutation):
         )  
         group.save()
         return createGroup(groupe=group) 
+
 # Add user to the group    
 class Add_user(graphene.Mutation):
     class Arguments:
         gid= graphene.Int()
         uid=graphene.Int()
     
-    groupe=graphene.Field(groupType) 
+    groupe=graphene.Field(groupType)
+    error = graphene.String()
 
     @classmethod
     def mutate(cls,root,info,gid,uid):
 
-        userId= User.objects.get(id=uid)
+        user = User.objects.filter(id=uid).first()
 
-        groupID=Group.objects.get(id=gid)
 
-        groupID.users.add(userId)
+        if not user:
+            return Add_user(error="User doesn't exist!")
+        
+
+        groupID=Group.objects.filter(id=gid).first()
+
+        if not groupID:
+            return Add_user(error="Group doesn't exist!")
+
+        groupID.users.add(user)
         groupID.save()
         return Add_user(groupe=groupID)     
+
+class Deletegroup_user(graphene.Mutation):
+        class Arguments:
+            gid = graphene.Int()
+            uid=graphene.Int()
+            
+            
+        groupe=graphene.Field(groupType)
+        error=graphene.String()
+
+        @classmethod
+        def mutate(cls, root, info, uid, gid):
+            user=User.objects.filter(id=uid).first()
+
+            if not user:
+                return Deletegroup_user(error="User doesn't exist!")
+
+            group=Group.objects.get(id=gid)
+            group.users.remove(user)
+            
+            
+            return Deletegroup_user(groupe=group)
+
 
     # updating the group
 class UpdateGroup(graphene.Mutation):
@@ -76,6 +116,7 @@ class Mutation(graphene.ObjectType):
     create_group=createGroup.Field() 
     update_group=UpdateGroup.Field()  
     add_GroupUser=Add_user.Field()
+    Deletegroupuser= Deletegroup_user.Field()
 
  
 
