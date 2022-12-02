@@ -70,7 +70,13 @@ class Add_user(graphene.Mutation):
 
         groupID.users.add(user)
         groupID.save()
-        return Add_user(groupe=groupID)     
+        return Add_user(groupe=groupID)  
+
+
+class ErrorType(graphene.ObjectType):
+    field=graphene.String()
+    message=graphene.String()
+
 
 class Deletegroup_user(graphene.Mutation):
         class Arguments:
@@ -98,14 +104,21 @@ class Deletegroup_user(graphene.Mutation):
     # updating the group
 class UpdateGroup(graphene.Mutation):
     class Arguments:
-        id = graphene.Int()
-        name=graphene.String(required=True)
+        id = graphene.Int(required=True)
+        name=graphene.String()
         descr=graphene.String() 
 
-    groupe=graphene.Field(groupType)  
+    groupe=graphene.Field(groupType)
+    error=graphene.Field(ErrorType)
     @classmethod
-    def mutate(cls,root,info,name,id,descr=None):
-        grp=Group.objects.get(id=id)
+    def mutate(cls,root,info,name=None,id=None,descr=None):
+        grp=Group.objects.filter(id=id).first()
+        if not grp:
+            err = {
+                "field":"id",
+                "message":"provide the valid group id"
+            }
+            return UpdateGroup(error=err)
         grp.name=name
         grp.description=descr
         grp.save()
