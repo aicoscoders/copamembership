@@ -1,3 +1,4 @@
 env
 bin
 copamembership/.env
+__pycache__/
